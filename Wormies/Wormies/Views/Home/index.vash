@@ -1,0 +1,33 @@
+﻿@html.extend("./Layouts/_layoutMain", function(){
+	@html.block("preScripts", function(){
+		<script src="/js/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		
+		<script>
+			var socket = io.connect('http://localhost:3000');
+
+			socket.on('update client', function(data){
+				update(data);
+			});
+
+			socket.on('your id', function(id){
+				console.log("my id:" + id)
+			});
+		</script>
+	})
+	
+	@html.block("body", function(){
+		<section class="main center" ng-controller="Socket">
+			<canvas id="game"></canvas>
+
+			<section>
+				
+			</section>
+		</section>
+	})
+
+	@html.block("postScripts", function(){
+		<script src="http://code.createjs.com/createjs-2013.12.12.min.js"></script>
+		<script type="text/jscript" src="/js/clientGame.js"></script>
+	})
+})
