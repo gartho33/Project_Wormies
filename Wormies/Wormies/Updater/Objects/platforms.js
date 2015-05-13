@@ -21,4 +21,5 @@ for (var i = 0; i < 3; i++) {
     platforms.push(add);
 }
 
+platforms[2].position.y += 50;
 exports.platforms = platforms;

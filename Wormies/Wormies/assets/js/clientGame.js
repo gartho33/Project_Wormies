@@ -8,14 +8,13 @@ var manifest = [
     { src: 'SpriteSheet.png', id: 'mySprites' }
 ];
 var queue;
-var ballimg;
 function loadFiles(){
     queue = new createjs.LoadQueue(true, 'imgs/');
     queue.on("complete", loadComplete, this);
     queue.loadManifest(manifest);
 }
 function loadComplete(evt){
-    ballimg = new createjs.Bitmap(queue.getResult("ball"));
+    var ballimg = new createjs.Bitmap(queue.getResult("ball"));
     stage.addChild(ballimg);
     projectiles.forEach(function (projectile){
         if (projectile.type == "ball") {
@@ -23,17 +22,20 @@ function loadComplete(evt){
         }
     })
     
-    var player1SpriteSheet = new createjs.SpriteSheet({
+    var player1SpriteSheet = new createjs.SpriteSheet( {
         images: [queue.getResult('mySprites')],
-        frames: { width: 50, height: 50, count: 30, regX: 0, regY: 0, spacing: 0, margin: 0 },
+        frames: { width: 50, height: 50, count: 40, regX: 0, regY: 0, spacing: 0, margin: 0 },
         animations: {
             idle: [0, 9, 'idle', .5],
-            walkRight: [10, 19, 'walkRight',.5],
-            jump: [20, 23, 'airIdle', .5],
-            airIdle: [24, 25, 'fall', .5],
-            fall: [26, 29, 'fall', .5]
+            walk: [10, 19, 'walk', .5],
+            walkShoot: [20, 29, 'walk', .5],
+            jump: [30, 33, 'airIdle', .1],
+            airIdle: [34, 35, 'fall', .1],
+            fall: [36, 39, 'fall', .1]
         }
-    });    
+    });
+    createjs.SpriteSheetUtils.addFlippedFrames(player1SpriteSheet, true, false, false);
+
     player1.shape = new createjs.Sprite(player1SpriteSheet);
     stage.addChild(player1.shape);
     player1.shape.gotoAndPlay('idle');
@@ -61,6 +63,13 @@ function setupStage(){
     });
 }
 
+var animation = Object.freeze({
+    IDLE: 'idle',
+    LEFT: 'left',
+    RIGHT: 'right',
+    JUMP: 'jump',
+});
+
 function move(){
     var socket = io.connect();
 
@@ -78,23 +87,65 @@ function move(){
     var MOVEING_UP = keys[KEYCODE_UP];
     var MOVEING_RIGHT = keys[KEYCODE_RIGHT];
     //var MOVEING_DOWN = keys[KEYCODE_DOWN];
-        
-        if (MOVEING_LEFT) {// a
-            socket.emit('player move', 'left');
+    
+    if (MOVEING_LEFT) {// a
+        socket.emit('player move', 'left');
+        if (!MOVEING_UP) {
+            setAnimation("left");
         }
-        
-        if (MOVEING_RIGHT) {// d
-            socket.emit('player move', 'right');
+    }
+    
+    if (MOVEING_RIGHT) {// d
+        socket.emit('player move', 'right');
+        if (!MOVEING_UP) {
+            setAnimation('right');
         }
-        
-        if (MOVEING_UP) {//space
-            socket.emit('player move', 'up');
-        }
-        
+    }
+    
+    if (MOVEING_UP) {//space
+        socket.emit('player move', 'up');
+        setAnimation("jump");
+    }
+    
     if (!MOVEING_UP) {
             socket.emit('player move', 'down');
-        }
+    }
+
+    if(!MOVEING_LEFT && !MOVEING_RIGHT && !MOVEING_UP) {
+        setAnimation("idle");
+    }
 }
+
+function setAnimation(direction){
+    if (direction == animation.LEFT) {
+        if (player1.shape.currentAnimation != 'walk_h') {
+            player1.shape.gotoAndPlay("walk_h");
+        }
+    }
+    if (direction == animation.RIGHT) {
+        if (player1.shape.currentAnimation != 'walk') {
+            player1.shape.gotoAndPlay('walk');
+        }
+    }
+    if (direction == animation.JUMP) {
+        if(player1.shape.currentAnimation != 'jump' && player1.shape.currentAnimation != 'jump_h')
+        if (player1.shape.currentAnimation.contains('_h')) {
+            player1.shape.gotoAndPlay('jump_h');
+        }
+        else {
+            player1.shape.gotoAndPlay('jump');
+        }
+    }
+    if (direction == animation.IDLE) {
+        if (player1.shape.currentAnimation != 'idle' && player1.shape.currentAnimation != 'idle_h') {
+            if (player1.shape.currentAnimation.contains('_h')) {
+                player1.shape.gotoAndPlay("idle_h");
+            } else {
+                player1.shape.gotoAndPlay("idle");
+            }
+        }
+    }
+};
 
 var ball = {
     radius: 25,
