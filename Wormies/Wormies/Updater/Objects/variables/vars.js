@@ -5,4 +5,4 @@
     }
 };
 
-exports.buffer = 10;
+exports.buffer = 5;

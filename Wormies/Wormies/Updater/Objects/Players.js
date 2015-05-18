@@ -53,9 +53,9 @@ var player = {
                         that.velocity.y = 0;
                     } else if (platformCenter.y - playerCenter.y > -((that.height / 2) - buffer)) {//top hit
                         //console.log("top hit");
-                        that.position.y = platform.position.y - that.height;
+                        that.position.y = platform.position.y - that.height +1;
                         that.grounded = true;
-                        that.velocity.y = 1;
+                        that.velocity.y = 0;
                     }
                 } else {
                     if (platformCenter.x - playerCenter.x < (that.width / 2) - buffer) {//right hit
@@ -85,6 +85,10 @@ var player = {
         }
         if (this.position.y <= 0 && this.filled) {
             this.position.y = 1;
+        }
+        if(this.id == 1){
+            //console.log(this.grounded);
+            //console.log(collitions.length)
         }
     }
 };
@@ -125,5 +129,21 @@ function movePlayer(id, direction) {
     };
 };
 
+function getJumpState(id){
+    var jumpState = 0;
+    if (!players[id].grounded) {
+        if (players[id].velocity.y > -1 && players[id].velocity.y < 1) {
+            jumpState = 2;//air idle
+        } else if (players[id].velocity.y > 0) {
+            jumpState = 3;// falling
+        } else if (players[id].velocity.y < 0) {
+            jumpState = 1// accending
+        }
+    }
+    //console.log(players[id].grounded)
+    return jumpState;
+};
+
 exports.players = players;
 exports.movePlayer = movePlayer;
+exports.getPlayerJumpState = getJumpState;

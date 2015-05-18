@@ -24,7 +24,7 @@ function removePlayer(id){
 function update(){
     var playerList = { type: "players", objects: [] };
     players.forEach(function (player) {
-        var add = {id: player.id, position: player.position}
+        var add = {id: player.id, position: player.position, jumpState: require('./Objects/Players.js').getPlayerJumpState(player.id-1)}
         playerList.objects.push(add);
     });
     

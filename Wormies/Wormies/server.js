@@ -37,6 +37,10 @@ io.on('connection', function (socket) {
             updater.movePlayer(socket.params.ID, data);
         }
     });
+
+    socket.on('update animation', function (data) {
+        socket.broadcast.emit('update animation', data);
+    });
 });
 
 var frames = 1000 / 30;

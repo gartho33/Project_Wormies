@@ -5,6 +5,8 @@
 		
 		<script>
 			var socket = io.connect('http://localhost:3000');
+			var ready = false;
+			var myID;
 
 			socket.on('update client', function(data){
 				if(ready){
@@ -14,6 +16,13 @@
 
 			socket.on('your id', function(id){
 				console.log("my id:" + id)
+				myID = id;
+			});
+
+			socket.on('update animation', function(data){
+				if(ready){
+					setTheirAnimation(data);
+				}
 			});
 		</script>
 	})
